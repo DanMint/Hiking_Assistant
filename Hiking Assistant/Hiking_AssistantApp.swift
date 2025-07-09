@@ -9,6 +9,8 @@ import SwiftUI
 
 @main
 struct Hiking_AssistantApp: App {
+    // Instance created for weatherAPI (parent view)
+    @StateObject private var weatherAPI = WeatherApiInteraction()
     var body: some Scene {
         WindowGroup {
             ContentView()

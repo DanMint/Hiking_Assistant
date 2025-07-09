@@ -1,19 +1,25 @@
 //
-//  CompassCreation.swift
+//  CompassHeading.swift
 //  Hiking Assistant
 //
 //  Created by Daniel on 7/6/25.
 //
 import CoreLocation
 
-class CompassCreation : NSObject, CLLocationManagerDelegate, ObservableObject {
+class CompassHeading : NSObject, CLLocationManagerDelegate, ObservableObject {
     private let locationManager = CLLocationManager()
+    
     @Published var magneticHeading : Double
     @Published var realHeading : Double
+    @Published var smoothHeading : Double
+    
+    private var lastHeading : Double
     
     override init() {
         self.magneticHeading = 0.0
         self.realHeading = 0.0
+        self.smoothHeading = 0.0
+        self.lastHeading = 0.0
         // super init needed to initialize NSObject
         super.init()
         // this makes sure that the delegate is assosiated with this class instance
@@ -29,11 +35,18 @@ class CompassCreation : NSObject, CLLocationManagerDelegate, ObservableObject {
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+        let newMagnetic = newHeading.magneticHeading
+        let newReal = newHeading.trueHeading
+        
         print("Magnetic heading: \(newHeading.magneticHeading)")
         print("Real heading: \(newHeading.trueHeading)")
         
-        self.magneticHeading = newHeading.magneticHeading
-        self.realHeading = newHeading.trueHeading
+        self.magneticHeading = newMagnetic
+        self.realHeading = newReal
+        
+        let smoothed = smoothTransition(from: lastHeading, to: newMagnetic)
+        lastHeading = smoothed
+        self.smoothHeading = smoothed
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: any Error) {
@@ -42,5 +55,23 @@ class CompassCreation : NSObject, CLLocationManagerDelegate, ObservableObject {
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         print("Authorization changed: \(manager.authorizationStatus.rawValue)")
+    }
+    
+    private func smoothTransition(from previous: Double, to current: Double) -> Double {
+            let delta = current - previous
+            if abs(delta) <= 180 {
+                return current
+            }
+            else {
+                return delta > 0 ? current - 360 : current + 360
+            }
+        }
+    
+    func setMagneticHeading(_ setMagneticHeading : Double) -> Void {
+        self.magneticHeading = setMagneticHeading
+    }
+    
+    func setSmoothHeading(_ setSmoothHeading : Double) -> Void {
+        self.smoothHeading = setSmoothHeading
     }
 }

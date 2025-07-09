@@ -47,5 +47,5 @@ class MapLocationManager: NSObject, ObservableObject, CLLocationManagerDelegate 
 }
 
 #Preview {
-    ContentView()
+    MapView()
 }
