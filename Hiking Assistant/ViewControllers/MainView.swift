@@ -10,6 +10,7 @@ import SwiftUI
 struct MainView: View {
     // StateObject of compass heading to be passed around
     @StateObject var compassHeading : CompassHeading = CompassHeading()
+    @StateObject var weatherApiInteraction : WeatherApiInteraction = WeatherApiInteraction()
     
     // Simple greetins
     private let greeings : [String] = [

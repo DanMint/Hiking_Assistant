@@ -11,7 +11,9 @@ import CoreLocation
 // NSObject: defualt objecgive C things
 // CLLocationManagerDelegate: has to do with location
 class WeatherApiInteraction: NSObject, CLLocationManagerDelegate {
-    private let API_KEY : String = Bundle.main.infoDictionary?["WEATHER_API_KEY"] as? String ?? ""
+    private let API_KEY: String = (Bundle.main.infoDictionary?["WEATHER_API_KEY"] as? String ?? "")
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+
     @Published var temperatureText : String = "Loading ..."
     @AppStorage("temperatureUnit") private var temperatureUnit : String = "Celcius"
     private var currentTempratureInt : Int = Int(INT32_MAX)
@@ -22,9 +24,11 @@ class WeatherApiInteraction: NSObject, CLLocationManagerDelegate {
         // when calling override ALWAYS call super.init. It basically calls the initializer of the parent class, which is NSObject
         super.init()
         // this is a delegate, meaning it does a job on behalf os something else. When the location changes then locationManager gets envoked automatically
-        locationManager.delegate = self
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.requestLocation()
+        self.locationManager.delegate = self
+        self.locationManager.requestWhenInUseAuthorization()
+        self.locationManager.requestLocation()
+        
+        self.checkIfApiKeyLoaded()
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -37,6 +41,20 @@ class WeatherApiInteraction: NSObject, CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         temperatureText = "Failed to get location"
+    }
+    
+    // just a test function that tests if api key loaded from Secrets.xcconfig
+    private func checkIfApiKeyLoaded() -> Bool {
+        if API_KEY.isEmpty {
+            print("API key not loaded")
+            return false
+        }
+        else {
+            print("API key loaded")
+            print("API key is: \(API_KEY.debugDescription)")
+
+        }
+        return true
     }
 }
 
