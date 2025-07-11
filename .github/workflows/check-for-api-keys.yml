@@ -1,0 +1,17 @@
+name: "Check PR pushes for leaked API keys (if found the workflows fails and alerts)"
+
+on:
+  pull_request:
+    branches: [ "main" ] 
+
+jobs:
+  gitleaks-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run git leaks
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          config-path: ""
