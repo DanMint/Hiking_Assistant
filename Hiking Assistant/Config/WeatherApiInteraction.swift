@@ -11,7 +11,7 @@ import CoreLocation
 // NSObject: defualt objecgive C things
 // CLLocationManagerDelegate: has to do with location
 class WeatherApiInteraction: NSObject, CLLocationManagerDelegate {
-    private let API_KEY : String = "787bf3527117ccf4f1b1bbda0ace2804"
+    private let API_KEY : String = Bundle.main.infoDictionary?["WEATHER_API_KEY"] as? String ?? ""
     @Published var temperatureText : String = "Loading ..."
     @AppStorage("temperatureUnit") private var temperatureUnit : String = "Celcius"
     private var currentTempratureInt : Int = Int(INT32_MAX)
