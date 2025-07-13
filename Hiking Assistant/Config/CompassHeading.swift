@@ -12,6 +12,9 @@ class CompassHeading : NSObject, CLLocationManagerDelegate, ObservableObject {
     @Published var magneticHeading : Double
     @Published var realHeading : Double
     @Published var smoothHeading : Double
+    @Published var altitude : Double
+    @Published var speed : Double
+    @Published var timeStamp : Date
     
     private var lastHeading : Double
     
@@ -20,6 +23,9 @@ class CompassHeading : NSObject, CLLocationManagerDelegate, ObservableObject {
         self.realHeading = 0.0
         self.smoothHeading = 0.0
         self.lastHeading = 0.0
+        self.altitude = 0.0
+        self.speed = 0.0
+        self.timeStamp = Date()
         // super init needed to initialize NSObject
         super.init()
         // this makes sure that the delegate is assosiated with this class instance
@@ -32,6 +38,8 @@ class CompassHeading : NSObject, CLLocationManagerDelegate, ObservableObject {
         locationManager.requestWhenInUseAuthorization()
         // this updates the location when user moves phone
         locationManager.startUpdatingHeading()
+        // this updates the locations
+        locationManager.startUpdatingLocation()
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
@@ -56,6 +64,23 @@ class CompassHeading : NSObject, CLLocationManagerDelegate, ObservableObject {
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         print("Authorization changed: \(manager.authorizationStatus.rawValue)")
     }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let location = locations.last {
+            self.altitude = location.altitude
+            print("Altitude: \(location.altitude) meters")
+            
+            if location.speed >= 0 {
+                self.speed = location.speed
+            }
+            else {
+                print("Speed unavailable")
+            }
+            
+            self.timeStamp = location.timestamp
+        }
+    }
+
     
     private func smoothTransition(from previous: Double, to current: Double) -> Double {
             let delta = current - previous
